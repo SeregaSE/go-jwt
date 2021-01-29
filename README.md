@@ -8,27 +8,38 @@ Use `base64.RawURLEncoding` to make JWT safe to use in web (urls).
 ## New JWT
 
 ```golang
+package main
+
+import (
+	"fmt"
+	"log"
+	"time"
+	jwt "github.com/SeregaSE/go-jwt"
+)
+
 type Payload struct {
-	Id   int
+	Id int
 	Role string
 }
 
-secret := []byte("qwerty123456")
+var secret = []byte("qwerty123456")
 
-headers := &Headers{
-    Exp: time.Now().Add(time.Hour).Unix(),
-    Nbf: time.Now().Add(time.Minute).Unix(),
+func main() {
+	token, err := jwt.New(
+		&jwt.Headers{
+			Exp: time.Now().Add(time.Hour).Unix(),
+			Nbf: time.Now().Add(time.Second * 10).Unix(),
+		},
+		&Payload{1, "root"},
+		secret,
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(token)
 }
-
-payload := &Payload{1, "root"}
-
-jwt, err := New(headers, payload, secret)
-
-if err != nil {
-	fmt.Println(err)
-}
-
-fmt.Println(jwt)
 ```
 
 ## Verify JWT
@@ -36,25 +47,78 @@ fmt.Println(jwt)
 If JWT is ok
 
 ```golang
+package main
+
+import (
+	"fmt"
+	"log"
+	"time"
+	jwt "github.com/SeregaSE/go-jwt"
+)
+
 type Payload struct {
-	Id   int
+	Id int
 	Role string
 }
 
-secret := []byte("qwerty123456")
+var secret = []byte("qwerty123456")
 
-jwt := "eyJleHAiOjE2MTE5MTg1ODh9.eyJJZCI6MSwiUm9sZSI6InJvb3QifQ.YPoqj6h_n6OyhHhIFMB3G_dIvxsUgK-PSJmcmjGIjbc"
+func main() {
+	token, err := jwt.New(
+		&jwt.Headers{ Exp: time.Now().Add(time.Hour).Unix() },
+		&Payload{1, "root"},
+		secret,
+	)
 
-payload := &Payload{}
+	if err != nil {
+		log.Fatal(err)
+	}
 
-_, err := Verify(jwt, secret, &payload)
+	fmt.Println(token)
 
-if err != nil {
-	fmt.Println(err)
+	payload := &Payload{}
+
+	_, err = jwt.Verify(token, secret, &payload)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("%v\n", payload)
+}
+```
+
+If JWT is not ok
+```golang
+package main
+
+import (
+	"fmt"
+	"log"
+	"time"
+	jwt "github.com/SeregaSE/go-jwt"
+)
+
+type Payload struct {
+	Id int
+	Role string
 }
 
-// payload.Id === 1
+var secret = []byte("qwerty123456")
 
+func main() {
+    token := "eyJleHAiOjE2MTE5MTg1ODh9.eyJJZCI6MSwiUm9sZSI6InJvb3QifQ.YPoqj6h_n6OyhHhIFMB3G_dIvxsUgK-PSJmcmjGIjbc"
+    
+    payload := &Payload{}
+    
+    _, err := jwt.Verify(token, secret, &payload)
+    
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Printf("%v\n", payload)
+}
 ```
 
 ## TODO
