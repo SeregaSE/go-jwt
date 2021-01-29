@@ -1,6 +1,9 @@
 # Golang JWT
 
-Implementation is simple. Signing and verifying JWT via hmac and sha256. Validate JWT by `Headeers.Exp` and `Headers.Nbf` fields.
+Implementation is simple.
+Signing and verifying JWT via hmac and sha256.
+Validate JWT by `Headers.Exp` and `Headers.Nbf` fields.
+Use `base64.RawURLEncoding` to make JWT safe to use in web (urls).
 
 ## New JWT
 
