@@ -1,0 +1,9 @@
+# Minimal json web tokens implementation
+
+- Sign JWT (hmac + sha256)
+- Verify JWT
+- Control JWT via `Exp`, `Iat`, `Nbf`
+
+# TODO
+
+- Sign JWT via RSA alg
