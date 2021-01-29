@@ -5,20 +5,22 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	h := &Headers{Exp: 1611918588}
+	secret := []byte("qwerty123456")
+	want := "eyJleHAiOjE2MTE5MTg1ODh9.eyJJZCI6MSwiUm9sZSI6InJvb3QifQ.YPoqj6h_n6OyhHhIFMB3G_dIvxsUgK-PSJmcmjGIjbc"
 
-	payload := struct {
+	type Payload struct {
 		Id   int
 		Role string
-	}{1, "user"}
+	}
 
-	jwt, err := New(h, payload, []byte("qwerty123456"))
+	headers := &Headers{Exp: 1611918588}
+	payload := &Payload{1, "root"}
+
+	jwt, err := New(headers, payload, secret)
 
 	if err != nil {
 		t.Error(err)
 	}
-
-	want := "eyJleHAiOjE2MTE5MTg1ODh9.eyJJZCI6MSwiUm9sZSI6InVzZXIifQ.LXSsKbXT28aHeHRIxYHLVdHMgtTpbtwyuxi_cTNOKOY"
 
 	if jwt != want {
 		t.Errorf("expect: %s, got: %s", want, jwt)

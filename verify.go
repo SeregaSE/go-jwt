@@ -6,15 +6,15 @@ import (
 	"time"
 )
 
-func Verify(jwt string, secret []byte) (*Headers, interface{}, error) {
+func Verify(jwt string, secret []byte, payload interface{}) (*Headers, error) {
 	base64Headers, base64Payload, base64Sign, err := parse(jwt)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	if !bytes.Equal(base64Sign, sign(base64Headers, base64Payload, secret)) {
-		return nil, nil, &InvalidError{}
+		return nil, &InvalidError{}
 	}
 
 	headers := &Headers{}
@@ -22,24 +22,22 @@ func Verify(jwt string, secret []byte) (*Headers, interface{}, error) {
 	err = json.Unmarshal(decodeBase64(base64Headers), headers)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	if headers.Exp > 0 && time.Now().Unix() > headers.Exp {
-		return nil, nil, &ExpError{}
+		return headers, &ExpError{}
 	}
 
 	if headers.Nbf > 0 && time.Now().Unix() < headers.Nbf {
-		return nil, nil, &NbfError{}
+		return headers, &NbfError{}
 	}
-
-	var payload interface{}
 
 	err = json.Unmarshal(decodeBase64(base64Payload), payload)
 
 	if err != nil {
-		return nil, nil, err
+		return headers, err
 	}
 
-	return headers, payload, nil
+	return headers, nil
 }
